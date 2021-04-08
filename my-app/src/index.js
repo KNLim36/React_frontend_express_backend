@@ -4,6 +4,18 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// const express = require('express')
+// const expressApp = express()
+// const port = 3001
+
+// expressApp.get('/', (req, res) => {
+//   res.status(200).send('Hello World!');
+// })
+
+// expressApp.listen(port, () => {
+//   console.log(`App running on port ${port}.`)
+// })
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
