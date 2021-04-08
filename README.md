@@ -1,2 +1,1 @@
-# RestaurantWith_ReactJS_Bootstrap_PostgreSQL
- 
+# This is a sample project which will demonstrate my understanding on frontend frameworks like ReactJs and Bootstrap and setting up a database with PostgreSQL
