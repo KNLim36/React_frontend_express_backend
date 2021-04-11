@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const restaurant_model = require("../../restaurant_model")
+const restaurant_model = require("../../models/restaurant_model")
 const fileUpload = require("express-fileupload")
 
 // Create new restaurant
@@ -55,14 +55,9 @@ router.delete("/:id", (req, res) => {})
 // Upload restaurant logo image
 router.post("/upload", (req, res) => {
   console.log(req.files.logo)
+  // If <input type="file" id="myFile" name="filename"> then is req.files.filename.name
   // req.files.foo.name: "car.jpg"
-  // req.files.foo.mv: A function to move the file elsewhere on your server. Can take a callback or return a promise.
-  // req.files.foo.mimetype: The mimetype of your file
   // req.files.foo.data: A buffer representation of your file, returns empty buffer in case useTempFiles option was set to true.
-  // req.files.foo.tempFilePath: A path to the temporary file in case useTempFiles option was set to true.
-  // req.files.foo.truncated: A boolean that represents if the file is over the size limit
-  // req.files.foo.size: Uploaded size in bytes
-  // req.files.foo.md5: MD5 checksum of the uploaded file
 })
 
 // Get all restaurant images

@@ -7,9 +7,9 @@ const pool = new Pool({
   port: 5432,
 })
 
-const getRestaurants = () => {
+const getRestaurantPriceRanges = () => {
   return new Promise(function (resolve, reject) {
-    pool.query("SELECT * FROM public.restaurant ORDER BY id ASC", (error, results) => {
+    pool.query("SELECT * FROM public.restaurant_price_range ORDER BY id ASC", (error, results) => {
       if (error) {
         reject(error)
       }
@@ -18,9 +18,9 @@ const getRestaurants = () => {
   })
 }
 
-const getSingleRestaurant = (id) => {
+const getSingleRestaurantPriceRange = (id) => {
   return new Promise(function (resolve, reject) {
-    pool.query(`"SELECT * FROM public.restaurant WHERE id = ${id}"`, (error, results) => {
+    pool.query(`"SELECT * FROM public.restaurant_price_range WHERE id = ${id}"`, (error, results) => {
       if (error) {
         reject(error)
       }
@@ -29,35 +29,36 @@ const getSingleRestaurant = (id) => {
   })
 }
 
-const createRestaurant = (body) => {
+const createRestaurantPriceRange = (body) => {
   return new Promise(function (resolve, reject) {
     const { name, description } = body
     pool.query(
-      "INSERT INTO public.restaurant (name, description) VALUES ($1, $2) RETURNING *",
+      "INSERT INTO public.restaurant_price_range (name, description) VALUES ($1, $2) RETURNING *",
       [name, description],
       (error, results) => {
         if (error) {
           reject(error)
         }
-        resolve(`A new restaurant has been added added: ${results.rows[0]}`)
+        resolve(`A new restaurant price range has been added added: ${results.rows[0]}`)
       }
     )
   })
 }
-const deleteRestaurant = () => {
+const deleteRestaurantPriceRange = (id) => {
   return new Promise(function (resolve, reject) {
     const id = parseInt(request.params.id)
-    pool.query("DELETE FROM public.restaurant WHERE id = $1", [id], (error, results) => {
+    pool.query("DELETE FROM public.restaurant_price_range WHERE id = $1", [id], (error, results) => {
       if (error) {
         reject(error)
       }
-      resolve(`Restaurant deleted with ID: ${id}`)
+      resolve(`Restaurant price range deleted with ID: ${id}`)
     })
   })
 }
 
 module.exports = {
-  getRestaurants,
-  createRestaurant,
-  deleteRestaurant,
+  getRestaurantPriceRanges,
+  getSingleRestaurantPriceRange,
+  createRestaurantPriceRange,
+  deleteRestaurantPriceRange,
 }
