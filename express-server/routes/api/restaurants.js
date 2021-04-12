@@ -9,13 +9,13 @@ router.post("/", (req, res) => {
     name: req.body.name,
     address: req.body.address,
     nationality_id: req.body.nationality_id,
-    image_id: req.body.image_id,
+    type_id: req.body.type_id,
     price_range_id: req.body.price_range_id,
   }
   restaurant_model
     .createRestaurant(newRestaurant)
     .then((response) => {
-      res.status(200).send(response)
+      res.status(200).send({ message: "Restaurant with name: " + req.body.name + " has been successfully added." })
     })
     .catch((error) => {
       res.status(500).send(error)
@@ -50,7 +50,16 @@ router.get("/:id", (req, res) => {
 router.put("/:id", (req, res) => {})
 
 // Delete restaurant
-router.delete("/:id", (req, res) => {})
+router.delete("/:id", (req, res) => {
+  restaurant_model
+    .deleteRestaurant(req.params.id)
+    .then((response) => {
+      res.status(200).send({ message: "Restaurant with id: " + req.params.id + " has been successfully deleted." })
+    })
+    .catch((error) => {
+      res.status(500).send(error)
+    })
+})
 
 // Upload restaurant logo image
 router.post("/upload", (req, res) => {

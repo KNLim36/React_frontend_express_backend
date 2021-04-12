@@ -1,13 +1,23 @@
-import Button from "react-bootstrap/Button"
 import { useState } from "react"
+import Button from "react-bootstrap/Button"
 import RestaurantDetails from "./RestaurantDetails"
+import RestaurantHistoryDetails from "./RestaurantHistoryDetails"
 import RestaurantMiscDetails from "./RestaurantMiscDetails"
 
-const ControlPanel = ({ restaurants, restaurantNationalities, restaurantTypes, restaurantPriceRanges }) => {
+const ControlPanel = ({
+  restaurants,
+  restaurantTypes,
+  restaurantNationalities,
+  restaurantPriceRanges,
+  restaurantHistories,
+  addRestaurantFunc,
+  deleteRestaurantFunc,
+}) => {
   const [showRestaurantControls, setShowRestaurantControls] = useState(false)
   const [showRestaurantTypeControls, setShowRestaurantTypeControls] = useState(false)
   const [showRestaurantNationalityControls, setShowRestaurantNationalityControls] = useState(false)
   const [showRestaurantPriceRangeControls, setShowRestaurantPriceRangeControls] = useState(false)
+  const [showRestaurantHistoryControls, setShowRestaurantHistoryControls] = useState(false)
 
   const toggleOpenComponents = (controlName) => {
     let toggleFlagList = [
@@ -15,6 +25,7 @@ const ControlPanel = ({ restaurants, restaurantNationalities, restaurantTypes, r
       { name: "showRestaurantTypeControls", toggleFlagFunc: setShowRestaurantTypeControls },
       { name: "showRestaurantNationalityControls", toggleFlagFunc: setShowRestaurantNationalityControls },
       { name: "showRestaurantPriceRangeControls", toggleFlagFunc: setShowRestaurantPriceRangeControls },
+      { name: "showRestaurantHistoryControls", toggleFlagFunc: setShowRestaurantHistoryControls },
     ]
 
     toggleFlagList.forEach((control) => {
@@ -24,7 +35,7 @@ const ControlPanel = ({ restaurants, restaurantNationalities, restaurantTypes, r
 
   return (
     <div>
-      <div className="container-fluid">
+      <div className="container-fluid" style={{ border: "1px solid #cecece" }}>
         <Button
           variant="primary"
           onClick={() => {
@@ -57,9 +68,28 @@ const ControlPanel = ({ restaurants, restaurantNationalities, restaurantTypes, r
         >
           price range
         </Button>
+        <Button
+          variant="secondary"
+          onClick={() => {
+            toggleOpenComponents("showRestaurantHistoryControls")
+          }}
+        >
+          history
+        </Button>
       </div>
-      <div className="container-fluid" style={{ marginTop: "15px" }}>
-        {showRestaurantControls && <RestaurantDetails restaurants={restaurants}>Restaurant</RestaurantDetails>}
+      <div className="container-fluid" style={{ marginTop: "15px", border: "1px solid #cecece" }}>
+        {showRestaurantControls && (
+          <RestaurantDetails
+            restaurants={restaurants}
+            restaurantTypes={restaurantTypes}
+            restaurantNationalities={restaurantNationalities}
+            restaurantPriceRanges={restaurantPriceRanges}
+            addRestaurantFunc={addRestaurantFunc}
+            deleteRestaurantFunc={deleteRestaurantFunc}
+          >
+            Restaurant
+          </RestaurantDetails>
+        )}
         {showRestaurantTypeControls && (
           <RestaurantMiscDetails dataList={restaurantTypes}>Restaurant type</RestaurantMiscDetails>
         )}
@@ -68,6 +98,11 @@ const ControlPanel = ({ restaurants, restaurantNationalities, restaurantTypes, r
         )}
         {showRestaurantPriceRangeControls && (
           <RestaurantMiscDetails dataList={restaurantPriceRanges}>Restaurant price range</RestaurantMiscDetails>
+        )}
+        {showRestaurantHistoryControls && (
+          <RestaurantHistoryDetails dataList={restaurantHistories} restaurants={restaurants}>
+            Restaurant history
+          </RestaurantHistoryDetails>
         )}
       </div>
     </div>

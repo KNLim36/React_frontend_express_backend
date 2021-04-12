@@ -4,40 +4,30 @@ import { useState, useEffect } from "react"
 import Button from "react-bootstrap/Button"
 
 function App() {
-  //#region Nationalities
+  //#region all useStates
   const [restaurantNationalities, setRestaurantNationalities] = useState([])
+  const [restaurantTypes, setRestaurantTypes] = useState([])
+  const [restaurantPriceRanges, setRestaurantPriceRanges] = useState([])
+  const [restaurantHistories, setRestaurantHistories] = useState([])
+  const [restaurants, setRestaurants] = useState([])
+  const [showMainPanel, setShowMainPanel] = useState(false)
+  const [showStartButton, setShowStartButton] = useState(true)
+  //#endregion
 
-  // Fetch restaurant nationalities
+  //#region All fetch methods
   const fetchRestaurantNationalities = async () => {
     const res = await fetch("http://localhost:5000/api/restaurantNationalities", { method: "GET" })
     const data = await res.json()
     console.log(data)
     return data
   }
-  //#endregion
 
-  //#region Type
-  const [restaurantTypes, setRestaurantTypes] = useState([])
-
-  // Fetch restaurant types
   const fetchRestaurantTypes = async () => {
     const res = await fetch("http://localhost:5000/api/restaurantTypes", { method: "GET" })
     const data = await res.json()
     console.log(data)
     return data
   }
-  //#endregion
-
-  //#region Price range
-  const [restaurantPriceRanges, setRestaurantPriceRanges] = useState([])
-
-  const fetchRestaurantPriceRanges = async () => {
-    const res = await fetch("http://localhost:5000/api/restaurantPriceRanges", { method: "GET" })
-    const data = await res.json()
-    console.log(data)
-    return data
-  }
-  //#endregion
 
   const fetchRestaurants = async () => {
     const res = await fetch("http://localhost:5000/api/restaurants", { method: "GET" })
@@ -46,13 +36,19 @@ function App() {
     return data
   }
 
-  const [restaurants, setRestaurants] = useState([])
-  const [showRestaurants, setShowRestaurants] = useState(false)
-  const [showAddRestaurant, setShowAddRestaurant] = useState(false)
-  const [showAddRestaurantType, setShowRestaurantType] = useState(false)
-  const [showAddRestaurantNationality, setShowRestaurantNationality] = useState(false)
-  const [showMainPanel, setShowMainPanel] = useState(false)
-  const [showStartButton, setShowStartButton] = useState(true)
+  const fetchRestaurantPriceRanges = async () => {
+    const res = await fetch("http://localhost:5000/api/restaurantPriceRanges", { method: "GET" })
+    const data = await res.json()
+    console.log(data)
+    return data
+  }
+  const fetchRestaurantHistories = async () => {
+    const res = await fetch("http://localhost:5000/api/restaurantHistories", { method: "GET" })
+    const data = await res.json()
+    console.log(data)
+    return data
+  }
+  //#endregion
 
   useEffect(() => {
     const getRestaurantNationalities = async () => {
@@ -75,28 +71,47 @@ function App() {
       setRestaurants(restaurantsFromServer)
     }
 
+    const getRestaurantHistories = async () => {
+      const historiesFromServer = await fetchRestaurantHistories()
+      setRestaurantHistories(historiesFromServer)
+    }
+
     getRestaurantNationalities()
     getRestaurantTypes()
     getRestaurantPriceRanges()
     getRestaurants()
+    getRestaurantHistories()
   }, [])
 
-  //#region Restaurant methods
-  // Set all restaurant data into the restaurant component
-  //const setRestaurants = (restaurants) => {}
-
-  // Randomly chooses a restaurant
-  const randomlyChooseRestaurant = (restaurantFilter) => {}
-
   // Add restaurant to PostgreSQL database
-  const addRestaurant = (restaurant) => {}
+  const addRestaurant = async (restaurant) => {
+    let restaurantData = {
+      name: restaurant.name,
+      address: restaurant.address,
+      type_id: restaurant.type_id,
+      nationality_id: restaurant.nationality_id,
+      price_range_id: restaurant.price_range_id,
+    }
+    const res = await fetch("http://localhost:5000/api/restaurants", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(restaurantData),
+    })
+    const data = await res.json()
+    console.log(data)
+    return data
+  }
 
   // Update restaurant
-  const updateRestaurant = () => {}
-
-  // Update restaurant
-  const deleteRestaurant = () => {}
-  //#endregion
+  const deleteRestaurant = async (restaurantId) => {
+    let restaurantIdString = restaurantId.toString()
+    const res = await fetch("http://localhost:5000/api/restaurants/" + restaurantIdString, { method: "DELETE" })
+    const data = await res.json()
+    console.log(data)
+    return data
+  }
 
   const start = () => {
     setShowMainPanel(true)
@@ -106,16 +121,19 @@ function App() {
   return (
     <div style={{ marginTop: "4px" }} className="container-fluid">
       {showStartButton && (
-        <Button style={{ marginLeft: "50%" }} variant="success" onClick={start}>
+        <Button style={{ marginLeft: "45%" }} variant="success" onClick={start}>
           Let's begin!
         </Button>
       )}
       {showMainPanel && (
         <ControlPanel
           restaurants={restaurants}
-          restaurantNationalities={restaurantNationalities}
           restaurantTypes={restaurantTypes}
+          restaurantNationalities={restaurantNationalities}
           restaurantPriceRanges={restaurantPriceRanges}
+          restaurantHistories={restaurantHistories}
+          addRestaurantFunc={addRestaurant}
+          deleteRestaurantFunc={deleteRestaurant}
         ></ControlPanel>
       )}
     </div>

@@ -28,9 +28,10 @@ expressApp.use(express.urlencoded({ extended: false }))
 expressApp.use(fileUpload({ limits: { fileSize: 50 * 1024 * 1024 } }))
 
 expressApp.use("/api/restaurants", require("./routes/api/restaurants"))
-expressApp.use("/api/restaurantTypes", require("./routes/api/restaurantNationalities"))
-expressApp.use("/api/restaurantNationalities", require("./routes/api/restaurantTypes"))
+expressApp.use("/api/restaurantTypes", require("./routes/api/restaurantTypes"))
+expressApp.use("/api/restaurantNationalities", require("./routes/api/restaurantNationalities"))
 expressApp.use("/api/restaurantPriceRanges", require("./routes/api/restaurantPriceRanges"))
+expressApp.use("/api/restaurantHistories", require("./routes/api/restaurantHistories"))
 
 expressApp.listen(port, () => {
   console.log(`Server running on port ${port}.`)
