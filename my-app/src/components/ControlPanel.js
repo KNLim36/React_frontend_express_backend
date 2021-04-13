@@ -12,12 +12,15 @@ const ControlPanel = ({
   restaurantHistories,
   addRestaurantFunc,
   deleteRestaurantFunc,
+  addRestaurantHistoryFunc,
 }) => {
   const [showRestaurantControls, setShowRestaurantControls] = useState(false)
   const [showRestaurantTypeControls, setShowRestaurantTypeControls] = useState(false)
   const [showRestaurantNationalityControls, setShowRestaurantNationalityControls] = useState(false)
   const [showRestaurantPriceRangeControls, setShowRestaurantPriceRangeControls] = useState(false)
   const [showRestaurantHistoryControls, setShowRestaurantHistoryControls] = useState(false)
+
+  const selectedRestaurantObj = { id: 0 }
 
   const toggleOpenComponents = (controlName) => {
     let toggleFlagList = [
@@ -86,6 +89,8 @@ const ControlPanel = ({
             restaurantPriceRanges={restaurantPriceRanges}
             addRestaurantFunc={addRestaurantFunc}
             deleteRestaurantFunc={deleteRestaurantFunc}
+            addRestaurantHistoryFunc={addRestaurantHistoryFunc}
+            selectedRestaurantObj={selectedRestaurantObj}
           >
             Restaurant
           </RestaurantDetails>

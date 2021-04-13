@@ -2,7 +2,10 @@ import Card from "react-bootstrap/Card"
 import ListGroup from "react-bootstrap/ListGroup"
 import ListGroupItem from "react-bootstrap/ListGroupItem"
 
-const Restaurant = ({ restaurant }) => {
+const Restaurant = ({ restaurant, idObj }) => {
+  // console.log("Inside restaurant value: ", restaurant)
+  idObj.id = restaurant.id
+
   return (
     <Card>
       <Card.Body>

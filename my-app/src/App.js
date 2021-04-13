@@ -42,12 +42,14 @@ function App() {
     console.log(data)
     return data
   }
+
   const fetchRestaurantHistories = async () => {
     const res = await fetch("http://localhost:5000/api/restaurantHistories", { method: "GET" })
     const data = await res.json()
     console.log(data)
     return data
   }
+
   //#endregion
 
   useEffect(() => {
@@ -104,6 +106,21 @@ function App() {
     return data
   }
 
+  const addRestaurantHistory = async (id) => {
+    let restaurantHistoryData = {
+      restaurant_id: id,
+    }
+    const res = await fetch("http://localhost:5000/api/RestaurantHistories", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify(restaurantHistoryData),
+    })
+    const data = await res.json()
+    return data
+  }
+
   // Update restaurant
   const deleteRestaurant = async (restaurantId) => {
     let restaurantIdString = restaurantId.toString()
@@ -134,6 +151,7 @@ function App() {
           restaurantHistories={restaurantHistories}
           addRestaurantFunc={addRestaurant}
           deleteRestaurantFunc={deleteRestaurant}
+          addRestaurantHistoryFunc={addRestaurantHistory}
         ></ControlPanel>
       )}
     </div>

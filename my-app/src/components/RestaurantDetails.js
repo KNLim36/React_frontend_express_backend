@@ -7,36 +7,7 @@ import FormGroup from "react-bootstrap/FormGroup"
 import { useState, useEffect } from "react"
 import FormLabel from "react-bootstrap/FormLabel"
 import FormControl from "react-bootstrap/FormControl"
-
-const renderFullRestaurantDetails = (
-  restaurants,
-  restaurantTypes,
-  restaurantNationalities,
-  restaurantPriceRanges,
-  restaurantTypeFilter,
-  restaurantNationalityFilter,
-  restaurantPriceRangeFilter
-) => {
-  restaurants.forEach((restaurant) => {
-    restaurantTypes.forEach((type) => {
-      if (parseInt(restaurant.type_id) === parseInt(type.id)) {
-        restaurant.type = type.description
-      }
-    })
-    restaurantNationalities.forEach((nationality) => {
-      if (parseInt(restaurant.nationality_id) === parseInt(nationality.id)) {
-        restaurant.nationality = nationality.description
-      }
-    })
-    restaurantPriceRanges.forEach((priceRange) => {
-      if (parseInt(restaurant.price_range_id) === parseInt(priceRange.id)) {
-        restaurant.priceRange = priceRange.description
-      }
-    })
-  })
-
-  return restaurants.map((restaurant, index) => <Restaurant key={index} restaurant={restaurant}></Restaurant>)
-}
+import { v4 } from "uuid"
 
 const RestaurantDetails = ({
   restaurants,
@@ -45,7 +16,10 @@ const RestaurantDetails = ({
   restaurantPriceRanges,
   addRestaurantFunc,
   deleteRestaurantFunc,
+  addRestaurantHistoryFunc,
+  selectedRestaurantObj,
 }) => {
+  console.log("In Restaurant Details: ", selectedRestaurantObj)
   // Show each modules of restaurant
   const [showAddRestaurant, setShowAddRestaurant] = useState(false)
   const [showDeleteRestaurant, setShowDeleteRestaurant] = useState(false)
@@ -59,12 +33,16 @@ const RestaurantDetails = ({
   const [restaurantPriceRangeOptions, setRestaurantPriceRangeOptions] = useState([])
 
   // Filters used to search or randomize
-  const [restaurantTypeFilter, setRestaurantTypeFilter] = useState({})
-  const [restaurantNationalityFilter, setRestaurantNationalityFilter] = useState({})
-  const [restaurantPriceRangeFilter, setRestaurantPriceRangeFilter] = useState({})
+  const [restaurantTypeFilter, setRestaurantTypeFilter] = useState({ name: "None" })
+  const [restaurantNationalityFilter, setRestaurantNationalityFilter] = useState({ name: "None" })
+  const [restaurantPriceRangeFilter, setRestaurantPriceRangeFilter] = useState({ name: "None" })
 
   // Show restaurant list
-  const [showRestaurant, setShowRestaurant] = useState(false)
+  const [showAllRestaurant, setShowAllRestaurant] = useState(false)
+  const [showRandomizedRestaurant, setShowRandomizedRestaurant] = useState(false)
+
+  // Show 1 selected restaurant, and selectedRestaurantInfo
+  const [showGoToRestaurant, setShowGoToRestaurant] = useState(false)
 
   const toggleOpenComponents = (controlName) => {
     let toggleFlagList = [
@@ -72,12 +50,311 @@ const RestaurantDetails = ({
       { name: "showDeleteRestaurant", toggleFlagFunc: setShowDeleteRestaurant },
       { name: "showRandomizeRestaurant", toggleFlagFunc: setShowRandomizeRestaurant },
       { name: "showSearchRestaurant", toggleFlagFunc: setShowSearchRestaurant },
-      { name: "showRestaurant", toggleFlagFunc: setShowRestaurant },
+      { name: "showAllRestaurant", toggleFlagFunc: setShowAllRestaurant },
+      { name: "showRandomizedRestaurant", toggleFlagFunc: setShowRandomizedRestaurant },
+      { name: "showGoToRestaurant", toggleFlagFunc: setShowGoToRestaurant },
     ]
 
     toggleFlagList.forEach((control) => {
       control.name === controlName ? control.toggleFlagFunc(true) : control.toggleFlagFunc(false)
     })
+  }
+
+  const renderFullRestaurantDetails = (
+    currRestaurants,
+    restaurantTypeFilter,
+    restaurantNationalityFilter,
+    restaurantPriceRangeFilter
+  ) => {
+    currRestaurants.forEach((restaurant) => {
+      restaurantTypes.forEach((type) => {
+        if (parseInt(restaurant.type_id) === parseInt(type.id)) {
+          restaurant.type = type.description
+        }
+      })
+      restaurantNationalities.forEach((nationality) => {
+        if (parseInt(restaurant.nationality_id) === parseInt(nationality.id)) {
+          restaurant.nationality = nationality.description
+        }
+      })
+      restaurantPriceRanges.forEach((priceRange) => {
+        if (parseInt(restaurant.price_range_id) === parseInt(priceRange.id)) {
+          restaurant.priceRange = priceRange.description
+        }
+      })
+    })
+
+    let filteredRestaurants = currRestaurants.filter((restaurant) => {
+      // If any of the filter is provided, use those to filter the current displayed
+      let checkRestaurantType = restaurantTypeFilter.name === "None" ? false : true
+      let restaurantTypeId
+      restaurantTypes.forEach((type) => {
+        if (type.name === restaurantTypeFilter.name) {
+          restaurantTypeId = type.id
+        }
+      })
+
+      let checkRestaurantNationality = restaurantNationalityFilter.name === "None" ? false : true
+      let restaurantNationalityId
+      restaurantNationalities.forEach((nationality) => {
+        if (nationality.name === restaurantNationalityFilter.name) {
+          restaurantNationalityId = nationality.id
+        }
+      })
+
+      let checkRestaurantPriceRange = restaurantPriceRangeFilter.name === "None" ? false : true
+      let restaurantPriceRangeId
+      restaurantPriceRanges.forEach((priceRange) => {
+        if (priceRange.name === restaurantPriceRangeFilter.name) {
+          restaurantPriceRangeId = priceRange.id
+        }
+      })
+
+      // Only type
+      if (checkRestaurantType === true && checkRestaurantNationality === false && checkRestaurantPriceRange === false) {
+        if (parseInt(restaurant.type_id) === restaurantTypeId) {
+          return true
+        }
+      }
+      // Only Nationality
+      else if (
+        checkRestaurantType === false &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === false
+      ) {
+        if (parseInt(restaurant.nationality_id) === restaurantNationalityId) {
+          return true
+        }
+      }
+      // Only Price Range
+      else if (
+        checkRestaurantType === false &&
+        checkRestaurantNationality === false &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (parseInt(restaurant.price_range_id) === restaurantPriceRangeId) {
+          return true
+        }
+      }
+      // Type and Nationality
+      else if (
+        checkRestaurantType === true &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === false
+      ) {
+        if (
+          parseInt(restaurant.type_id) === restaurantTypeId &&
+          parseInt(restaurant.nationality_id) === restaurantNationalityId
+        ) {
+          return true
+        }
+      }
+      // Type and Price Range
+      else if (
+        checkRestaurantType === true &&
+        checkRestaurantNationality === false &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (
+          parseInt(restaurant.type_id) === restaurantTypeId &&
+          parseInt(restaurant.price_range_id) === restaurantPriceRangeId
+        ) {
+          return true
+        }
+      }
+      // Nationality and Price Range
+      else if (
+        checkRestaurantType === false &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (
+          parseInt(restaurant.nationality_id) === restaurantNationalityId &&
+          parseInt(restaurant.price_range_id) === restaurantPriceRangeId
+        ) {
+          return true
+        }
+      }
+      // Type, Nationality and Price Range
+      else if (
+        checkRestaurantType === true &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (
+          parseInt(restaurant.type_id) === restaurantTypeId &&
+          parseInt(restaurant.nationality_id) === restaurantNationalityId &&
+          parseInt(restaurant.price_range_id) === restaurantPriceRangeId
+        ) {
+          return true
+        }
+      } else {
+        return true
+      }
+    })
+
+    // console.log(filteredRestaurants)
+    return filteredRestaurants.map((restaurant, index) => (
+      <Restaurant key={restaurant.id} id={restaurant.id} restaurant={restaurant}></Restaurant>
+    ))
+  }
+
+  const renderRandomizedRestaurantDetails = (
+    currRestaurants,
+    restaurantTypeFilter,
+    restaurantNationalityFilter,
+    restaurantPriceRangeFilter
+  ) => {
+    currRestaurants.forEach((restaurant) => {
+      restaurantTypes.forEach((type) => {
+        if (parseInt(restaurant.type_id) === parseInt(type.id)) {
+          restaurant.type = type.description
+        }
+      })
+      restaurantNationalities.forEach((nationality) => {
+        if (parseInt(restaurant.nationality_id) === parseInt(nationality.id)) {
+          restaurant.nationality = nationality.description
+        }
+      })
+      restaurantPriceRanges.forEach((priceRange) => {
+        if (parseInt(restaurant.price_range_id) === parseInt(priceRange.id)) {
+          restaurant.priceRange = priceRange.description
+        }
+      })
+    })
+
+    let filteredRestaurants = currRestaurants.filter((restaurant) => {
+      // If any of the filter is provided, use those to filter the current displayed
+      let checkRestaurantType = restaurantTypeFilter.name === "None" ? false : true
+      let restaurantTypeId
+      restaurantTypes.forEach((type) => {
+        if (type.name === restaurantTypeFilter.name) {
+          restaurantTypeId = type.id
+        }
+      })
+
+      let checkRestaurantNationality = restaurantNationalityFilter.name === "None" ? false : true
+      let restaurantNationalityId
+      restaurantNationalities.forEach((nationality) => {
+        if (nationality.name === restaurantNationalityFilter.name) {
+          restaurantNationalityId = nationality.id
+        }
+      })
+
+      let checkRestaurantPriceRange = restaurantPriceRangeFilter.name === "None" ? false : true
+      let restaurantPriceRangeId
+      restaurantPriceRanges.forEach((priceRange) => {
+        if (priceRange.name === restaurantPriceRangeFilter.name) {
+          restaurantPriceRangeId = priceRange.id
+        }
+      })
+
+      // Only type
+      if (checkRestaurantType === true && checkRestaurantNationality === false && checkRestaurantPriceRange === false) {
+        if (parseInt(restaurant.type_id) === restaurantTypeId) {
+          return true
+        }
+      }
+      // Only Nationality
+      else if (
+        checkRestaurantType === false &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === false
+      ) {
+        if (parseInt(restaurant.nationality_id) === restaurantNationalityId) {
+          return true
+        }
+      }
+      // Only Price Range
+      else if (
+        checkRestaurantType === false &&
+        checkRestaurantNationality === false &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (parseInt(restaurant.price_range_id) === restaurantPriceRangeId) {
+          return true
+        }
+      }
+      // Type and Nationality
+      else if (
+        checkRestaurantType === true &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === false
+      ) {
+        if (
+          parseInt(restaurant.type_id) === restaurantTypeId &&
+          parseInt(restaurant.nationality_id) === restaurantNationalityId
+        ) {
+          return true
+        }
+      }
+      // Type and Price Range
+      else if (
+        checkRestaurantType === true &&
+        checkRestaurantNationality === false &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (
+          parseInt(restaurant.type_id) === restaurantTypeId &&
+          parseInt(restaurant.price_range_id) === restaurantPriceRangeId
+        ) {
+          return true
+        }
+      }
+      // Nationality and Price Range
+      else if (
+        checkRestaurantType === false &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (
+          parseInt(restaurant.nationality_id) === restaurantNationalityId &&
+          parseInt(restaurant.price_range_id) === restaurantPriceRangeId
+        ) {
+          return true
+        }
+      }
+      // Type, Nationality and Price Range
+      else if (
+        checkRestaurantType === true &&
+        checkRestaurantNationality === true &&
+        checkRestaurantPriceRange === true
+      ) {
+        if (
+          parseInt(restaurant.type_id) === restaurantTypeId &&
+          parseInt(restaurant.nationality_id) === restaurantNationalityId &&
+          parseInt(restaurant.price_range_id) === restaurantPriceRangeId
+        ) {
+          return true
+        }
+      } else {
+        return true
+      }
+    })
+
+    let allFilteredRestaurantIds = filteredRestaurants.map((restaurant) => restaurant.id)
+    let randomRestaurantId = Math.floor(Math.random() * allFilteredRestaurantIds.length) + 0
+    console.log("selectedRestaurantObj in method: ", selectedRestaurantObj)
+    if (filteredRestaurants.length === 0) {
+      return
+    }
+    selectedRestaurantObj.id = parseInt(filteredRestaurants[randomRestaurantId].id)
+
+    return (
+      <Restaurant
+        key={"Random" + filteredRestaurants[randomRestaurantId].id}
+        id={"Random" + filteredRestaurants[randomRestaurantId].id}
+        restaurant={{
+          name: filteredRestaurants[randomRestaurantId].name,
+          id: filteredRestaurants[randomRestaurantId].id,
+          address: filteredRestaurants[randomRestaurantId].address,
+          priceRange: filteredRestaurants[randomRestaurantId].priceRange,
+          type: filteredRestaurants[randomRestaurantId].type,
+          nationality: filteredRestaurants[randomRestaurantId].nationality,
+        }}
+        idObj={selectedRestaurantObj}
+      ></Restaurant>
+    )
   }
 
   const renderRestaurantOptions = (restaurantOptions) => {
@@ -178,25 +455,29 @@ const RestaurantDetails = ({
   }
 
   const onSubmitRandomizeRestaurant = (event) => {
-    if (event.target.searchRestaurantType.value !== "None") {
-      setRestaurantTypeFilter({ name: event.target.searchRestaurantType.value })
-    }
-    if (event.target.searchRestaurantNationality.value !== "None") {
-      setRestaurantNationalityFilter({ name: event.target.searchRestaurantNationality.value })
-    }
-    if (event.target.searchRestaurantPriceRange.value !== "None") {
-      setRestaurantPriceRangeFilter({ name: event.target.searchRestaurantPriceRange.value })
-    }
     event.preventDefault()
-    setShowRestaurant(true)
+    setRestaurantTypeFilter({ name: event.target.randomRestaurantType.value })
+    setRestaurantNationalityFilter({ name: event.target.randomRestaurantNationality.value })
+    setRestaurantPriceRangeFilter({ name: event.target.randomRestaurantPriceRange.value })
+
+    setShowRandomizedRestaurant(true)
   }
 
   const onSubmitSearchRestaurant = (event) => {
+    event.preventDefault()
     setRestaurantTypeFilter({ name: event.target.searchRestaurantType.value })
     setRestaurantNationalityFilter({ name: event.target.searchRestaurantNationality.value })
     setRestaurantPriceRangeFilter({ name: event.target.searchRestaurantPriceRange.value })
-    event.preventDefault()
-    setShowRestaurant(true)
+
+    setShowAllRestaurant(true)
+  }
+
+  const onGoToRestaurantClick = () => {
+    if (selectedRestaurantObj.id === 0) {
+      console.log("No restaurant selected for option!")
+      return
+    }
+    addRestaurantHistoryFunc(selectedRestaurantObj.id)
   }
 
   useEffect(() => {
@@ -305,6 +586,7 @@ const RestaurantDetails = ({
             <Form
               onSubmit={(e) => {
                 onSubmitRandomizeRestaurant(e)
+                setShowGoToRestaurant(true)
               }}
             >
               <FormGroup controlId="randomRestaurantType">
@@ -328,8 +610,12 @@ const RestaurantDetails = ({
                 </FormControl>
               </FormGroup>
 
-              {/* <CardDeck style={{ display: "contents" }}>{()}</CardDeck> */}
               <Button size="lg" as="input" type="submit" variant="info" name="Randomize" value="Randomize" />
+              {showGoToRestaurant && (
+                <Button size="lg" variant="warning" onClick={onGoToRestaurantClick}>
+                  Let's go to this restaurant!
+                </Button>
+              )}
             </Form>
           </Container>
         )}
@@ -344,42 +630,54 @@ const RestaurantDetails = ({
               >
                 <FormGroup controlId="searchRestaurantType">
                   <FormLabel>Restaurant Type</FormLabel>
-                  <FormControl as="select">{renderRestaurantTypeOptions(restaurantTypeOptions)}</FormControl>
+                  <FormControl as="select">
+                    {renderRestaurantTypeOptions(restaurantTypeOptions, <option key="0">None</option>)}
+                  </FormControl>
                 </FormGroup>
 
                 <FormGroup controlId="searchRestaurantNationality">
                   <FormLabel>Restaurant Nationality</FormLabel>
                   <FormControl as="select">
-                    {renderRestaurantNationalityOptions(restaurantNationalityOptions)}
+                    {renderRestaurantNationalityOptions(restaurantNationalityOptions, <option key="0">None</option>)}
                   </FormControl>
                 </FormGroup>
 
                 <FormGroup controlId="searchRestaurantPriceRange">
                   <FormLabel>Restaurant Price Range</FormLabel>
                   <FormControl as="select">
-                    {renderRestaurantPriceRangeOptions(restaurantPriceRangeOptions)}
+                    {renderRestaurantPriceRangeOptions(restaurantPriceRangeOptions, <option key="0">None</option>)}
                   </FormControl>
                 </FormGroup>
 
                 <Button size="lg" as="input" type="submit" variant="primary" value="Search" />
               </Form>
             </Container>
+          </Container>
+        )}
 
-            {showRestaurant && (
-              <Container style={{ border: "1px solid #cecece" }}>
-                <CardDeck style={{ display: "contents" }}>
-                  {renderFullRestaurantDetails(
-                    restaurants,
-                    restaurantTypes,
-                    restaurantNationalities,
-                    restaurantPriceRanges,
-                    restaurantTypeFilter,
-                    restaurantNationalityFilter,
-                    restaurantPriceRangeFilter
-                  )}
-                </CardDeck>
-              </Container>
-            )}
+        {showAllRestaurant && (
+          <Container style={{ border: "1px solid #cecece" }}>
+            <CardDeck style={{ display: "contents" }}>
+              {renderFullRestaurantDetails(
+                restaurants,
+                restaurantTypeFilter,
+                restaurantNationalityFilter,
+                restaurantPriceRangeFilter
+              )}
+            </CardDeck>
+          </Container>
+        )}
+
+        {showRandomizedRestaurant && (
+          <Container style={{ border: "1px solid #cecece" }}>
+            <CardDeck style={{ display: "contents" }}>
+              {renderRandomizedRestaurantDetails(
+                restaurants,
+                restaurantTypeFilter,
+                restaurantNationalityFilter,
+                restaurantPriceRangeFilter
+              )}
+            </CardDeck>
           </Container>
         )}
       </Container>
