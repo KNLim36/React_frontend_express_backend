@@ -19,7 +19,7 @@ const RestaurantDetails = ({
   addRestaurantHistoryFunc,
   selectedRestaurantObj,
 }) => {
-  console.log("In Restaurant Details: ", selectedRestaurantObj)
+  // console.log("In Restaurant Details: ", selectedRestaurantObj)
   // Show each modules of restaurant
   const [showAddRestaurant, setShowAddRestaurant] = useState(false)
   const [showDeleteRestaurant, setShowDeleteRestaurant] = useState(false)
@@ -334,7 +334,7 @@ const RestaurantDetails = ({
 
     let allFilteredRestaurantIds = filteredRestaurants.map((restaurant) => restaurant.id)
     let randomRestaurantId = Math.floor(Math.random() * allFilteredRestaurantIds.length) + 0
-    console.log("selectedRestaurantObj in method: ", selectedRestaurantObj)
+    // console.log("selectedRestaurantObj in method: ", selectedRestaurantObj)
     if (filteredRestaurants.length === 0) {
       return
     }
@@ -362,6 +362,7 @@ const RestaurantDetails = ({
     restaurantOptions.forEach((restaurant) => {
       fullOptionList.push(<option key={restaurant.id}>{restaurant.name}</option>)
     })
+    console.log("fullOptionList is: ", fullOptionList)
     return fullOptionList
   }
 

@@ -4,7 +4,9 @@ import ListGroupItem from "react-bootstrap/ListGroupItem"
 
 const Restaurant = ({ restaurant, idObj }) => {
   // console.log("Inside restaurant value: ", restaurant)
-  idObj.id = restaurant.id
+  if (idObj) {
+    idObj.id = restaurant.id
+  }
 
   return (
     <Card>
