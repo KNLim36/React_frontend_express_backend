@@ -1,25 +1,42 @@
-This is a simple restaurant website with features stated below:
+# Simple Restaurant Website
+
+Welcome to the simple restaurant website repository. This website includes the following features:
+
 - Add restaurant
 - Delete restaurant
 - Search restaurant
 - Randomize and choose a restaurant
-- View restaurant details 
+- View restaurant details
 - Add restaurant history
 
-Restaurant entity has these info:
+## Restaurant Entity Information
+
+Each restaurant entry includes the following information:
+
 - Address
 - Price Range
-- Type
+- Type (cuisine type)
 - Nationality
 - History
 
-Restaurant History entity has these info: 
+## Restaurant History Entity Information
+
+The restaurant history includes:
+
 - Id
 - Name
 - Description
 
-Front end technologies used: React, Bootstrap
+## Front End Technologies Used
 
-Back end technologies used: Express.js, Node.js
+- React
+- Bootstrap
 
-Database used: PostgreSQL
+## Back End Technologies Used
+
+- Express.js
+- Node.js
+
+## Database Used
+
+- PostgreSQL
